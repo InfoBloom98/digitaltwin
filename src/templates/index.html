@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin Cybersecurity Simulation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --dark-color: #34495e;
+            --light-color: #ecf0f1;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-running { background-color: var(--success-color); }
+        .status-stopped { background-color: var(--danger-color); }
+        
+        .severity-critical { color: var(--danger-color); }
+        .severity-high { color: #e67e22; }
+        .severity-medium { color: var(--warning-color); }
+        .severity-low { color: var(--success-color); }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt me-2"></i>
+                Digital Twin Cybersecurity Simulation
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <span class="status-indicator" id="simulationStatus"></span>
+                    <span id="statusText">Stopped</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Control Panel -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-gamepad me-2"></i>Simulation Control
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-custom" onclick="startSimulation()">
+                                <i class="fas fa-play me-2"></i>Start Simulation
+                            </button>
+                            <button class="btn btn-danger btn-custom" onclick="stopSimulation()">
+                                <i class="fas fa-stop me-2"></i>Stop Simulation
+                            </button>
+                            <button class="btn btn-primary btn-custom" onclick="refreshData()">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Security Score</h6>
+                            <h3 id="securityScore">0</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shield-alt fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Entities</h6>
+                            <h3 id="entityCount">0</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-server fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Vulnerabilities</h6>
+                            <h3 id="vulnerabilityCount">0</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Attack Predictions</h6>
+                            <h3 id="attackCount">0</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-crosshairs fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-pie me-2"></i>Entity Distribution
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="entityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-bar me-2"></i>Vulnerability Severity
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="vulnerabilityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Posture -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line me-2"></i>Security Posture
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="securityPostureChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-lightbulb me-2"></i>Top Recommendations
+                        </h5>
+                        <div id="recommendationsList">
+                            <div class="loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-table me-2"></i>Recent Vulnerabilities
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Severity</th>
+                                        <th>Entity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vulnerabilitiesTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">No vulnerabilities detected</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-radar me-2"></i>Attack Predictions
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Probability</th>
+                                        <th>Severity</th>
+                                        <th>Targets</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attacksTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">No attack predictions</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading" id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Processing data...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let charts = {};
+        let updateInterval;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            refreshData();
+            startAutoRefresh();
+        });
+
+        // Initialize charts
+        function initializeCharts() {
+            // Entity Distribution Chart
+            const entityCtx = document.getElementById('entityChart').getContext('2d');
+            charts.entityChart = new Chart(entityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Vulnerability Severity Chart
+            const vulnCtx = document.getElementById('vulnerabilityChart').getContext('2d');
+            charts.vulnerabilityChart = new Chart(vulnCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#e74c3c', '#e67e22', '#f39c12', '#27ae60']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Security Posture Chart
+            const securityCtx = document.getElementById('securityPostureChart').getContext('2d');
+            charts.securityPostureChart = new Chart(securityCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Encryption', 'Authentication', 'Firewall', 'Patch Management', 'Vulnerability Scanning'],
+                    datasets: [{
+                        label: 'Coverage %',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        pointBackgroundColor: 'rgba(52, 152, 219, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Refresh all data
+        async function refreshData() {
+            showLoading();
+            
+            try {
+                const [status, entities, vulnerabilities, attacks, recommendations, metrics] = await Promise.all([
+                    fetch('/api/status').then(r => r.json()),
+                    fetch('/api/entities').then(r => r.json()),
+                    fetch('/api/vulnerabilities').then(r => r.json()),
+                    fetch('/api/attacks').then(r => r.json()),
+                    fetch('/api/recommendations').then(r => r.json()),
+                    fetch('/api/metrics').then(r => r.json())
+                ]);
+
+                updateStatus(status);
+                updateMetrics(status);
+                updateEntityChart(entities);
+                updateVulnerabilityChart(vulnerabilities);
+                updateSecurityPostureChart(metrics);
+                updateVulnerabilitiesTable(vulnerabilities);
+                updateAttacksTable(attacks);
+                updateRecommendations(recommendations);
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showAlert('Error loading data', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Update status
+        function updateStatus(status) {
+            const statusIndicator = document.getElementById('simulationStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (status.running) {
+                statusIndicator.className = 'status-indicator status-running';
+                statusText.textContent = 'Running';
+            } else {
+                statusIndicator.className = 'status-indicator status-stopped';
+                statusText.textContent = 'Stopped';
+            }
+        }
+
+        // Update metrics
+        function updateMetrics(status) {
+            document.getElementById('securityScore').textContent = Math.round(status.security_score);
+            document.getElementById('entityCount').textContent = status.entity_count;
+            document.getElementById('vulnerabilityCount').textContent = status.vulnerability_count;
+            document.getElementById('attackCount').textContent = status.attack_count;
+        }
+
+        // Update entity chart
+        function updateEntityChart(entities) {
+            const entityTypes = entities.entity_types;
+            const labels = Object.keys(entityTypes);
+            const data = labels.map(type => entityTypes[type].length);
+
+            charts.entityChart.data.labels = labels;
+            charts.entityChart.data.datasets[0].data = data;
+            charts.entityChart.update();
+        }
+
+        // Update vulnerability chart
+        function updateVulnerabilityChart(vulnerabilities) {
+            const severityGroups = vulnerabilities.severity_groups;
+            const data = [
+                severityGroups.critical?.length || 0,
+                severityGroups.high?.length || 0,
+                severityGroups.medium?.length || 0,
+                severityGroups.low?.length || 0
+            ];
+
+            charts.vulnerabilityChart.data.datasets[0].data = data;
+            charts.vulnerabilityChart.update();
+        }
+
+        // Update security posture chart
+        function updateSecurityPostureChart(metrics) {
+            const securityPosture = metrics.security_posture;
+            const data = [
+                securityPosture.encryption_coverage,
+                securityPosture.authentication_coverage,
+                securityPosture.firewall_coverage,
+                securityPosture.patch_management_coverage,
+                securityPosture.vulnerability_scanning_coverage || 0
+            ];
+
+            charts.securityPostureChart.data.datasets[0].data = data;
+            charts.securityPostureChart.update();
+        }
+
+        // Update vulnerabilities table
+        function updateVulnerabilitiesTable(vulnerabilities) {
+            const tbody = document.getElementById('vulnerabilitiesTable');
+            const vulns = vulnerabilities.vulnerabilities.slice(0, 5); // Show top 5
+
+            if (vulns.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No vulnerabilities detected</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = vulns.map(vuln => `
+                <tr>
+                    <td>${vuln.type}</td>
+                    <td><span class="severity-${vuln.severity}">${vuln.severity}</span></td>
+                    <td>${vuln.entity_name}</td>
+                    <td><span class="badge bg-${vuln.status === 'open' ? 'danger' : 'success'}">${vuln.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Update attacks table
+        function updateAttacksTable(attacks) {
+            const tbody = document.getElementById('attacksTable');
+            const attackList = attacks.attacks.slice(0, 5); // Show top 5
+
+            if (attackList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No attack predictions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = attackList.map(attack => `
+                <tr>
+                    <td>${attack.type}</td>
+                    <td>${(attack.probability * 100).toFixed(1)}%</td>
+                    <td><span class="severity-${attack.severity}">${attack.severity}</span></td>
+                    <td>${attack.targets.length} targets</td>
+                </tr>
+            `).join('');
+        }
+
+        // Update recommendations
+        function updateRecommendations(recommendations) {
+            const container = document.getElementById('recommendationsList');
+            const recs = recommendations.recommendations.slice(0, 5); // Show top 5
+
+            if (recs.length === 0) {
+                container.innerHTML = '<p class="text-muted">No recommendations available</p>';
+                return;
+            }
+
+            container.innerHTML = recs.map(rec => `
+                <div class="alert alert-custom alert-${getPriorityColor(rec.priority)} mb-2">
+                    <h6 class="alert-heading">${rec.title}</h6>
+                    <p class="mb-1">${rec.description}</p>
+                    <small class="text-muted">Priority: ${rec.priority}</small>
+                    <button class="btn btn-sm btn-outline-primary float-end" onclick="applyRecommendation('${rec.id}')">
+                        Apply
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Get priority color
+        function getPriorityColor(priority) {
+            switch (priority) {
+                case 'critical': return 'danger';
+                case 'high': return 'warning';
+                case 'medium': return 'info';
+                case 'low': return 'success';
+                default: return 'secondary';
+            }
+        }
+
+        // Apply recommendation
+        async function applyRecommendation(recommendationId) {
+            try {
+                const response = await fetch('/api/apply_recommendation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ recommendation_id: recommendationId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Recommendation applied successfully', 'success');
+                    refreshData();
+                } else {
+                    showAlert('Failed to apply recommendation', 'danger');
+                }
+            } catch (error) {
+                console.error('Error applying recommendation:', error);
+                showAlert('Error applying recommendation', 'danger');
+            }
+        }
+
+        // Start simulation
+        async function startSimulation() {
+            try {
+                await fetch('/api/simulation/start', { method: 'POST' });
+                showAlert('Simulation started', 'success');
+                refreshData();
+            } catch (error) {
+                console.error('Error starting simulation:', error);
+                showAlert('Error starting simulation', 'danger');
+            }
+        }
+
+        // Stop simulation
+        async function stopSimulation() {
+            try {
+                await fetch('/api/simulation/stop', { method: 'POST' });
+                showAlert('Simulation stopped', 'warning');
+                refreshData();
+            } catch (error) {
+                console.error('Error stopping simulation:', error);
+                showAlert('Error stopping simulation', 'danger');
+            }
+        }
+
+        // Start auto refresh
+        function startAutoRefresh() {
+            updateInterval = setInterval(refreshData, 10000); // Refresh every 10 seconds
+        }
+
+        // Show loading
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'block';
+        }
+
+        // Hide loading
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-custom alert-dismissible fade show position-fixed`;
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,42 @@
+simulation:
+  duration: 3600  # seconds
+  update_interval: 1  # seconds
+  max_entities: 1000
+
+security:
+  vulnerability_scan_interval: 300  # seconds
+  threat_detection_sensitivity: 0.8
+  max_false_positive_rate: 0.02
+  response_time_threshold: 100  # milliseconds
+
+models:
+  anomaly_detection:
+    algorithm: isolation_forest
+    contamination: 0.1
+    n_estimators: 100
+  attack_prediction:
+    algorithm: random_forest
+    n_estimators: 200
+    max_depth: 10
+  vulnerability_assessment:
+    algorithm: gradient_boosting
+    learning_rate: 0.1
+    n_estimators: 100
+
+dashboard:
+  host: localhost
+  port: 5000
+  debug: false
+  auto_reload: true
+
+data:
+  input_path: data/input/
+  output_path: data/output/
+  backup_path: data/backup/
+  max_file_size: 104857600  # 100MB
+
+logging:
+  level: INFO
+  file: logs/simulation.log
+  max_size: 10485760  # 10MB
+  backup_count: 5 
