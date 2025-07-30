@@ -1,133 +1,141 @@
 #!/usr/bin/env python3
 """
 Installation script for Digital Twin Cybersecurity Simulation
+Automatically detects Python version and installs compatible dependencies
 """
 
 import sys
 import subprocess
-import os
+import platform
 from pathlib import Path
 
-def check_python_version():
+def get_python_version():
+    """Get Python version as tuple (major, minor)"""
+    return sys.version_info[:2]
+
+def check_python_compatibility():
     """Check if Python version is compatible"""
-    version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 8):
-        print("❌ Python 3.8 or higher is required")
-        print(f"   Current version: {version.major}.{version.minor}.{version.micro}")
+    version = get_python_version()
+    print(f"🐍 Python version: {version[0]}.{version[1]}")
+    
+    if version < (3, 8):
+        print("❌ Error: Python 3.8 or higher is required")
+        print(f"   Current version: {version[0]}.{version[1]}")
         return False
     
-    print(f"✅ Python version: {version.major}.{version.minor}.{version.micro}")
-    return True
-
-def check_pip():
-    """Check if pip is available"""
-    try:
-        import pip
-        print("✅ pip is available")
-        return True
-    except ImportError:
-        print("❌ pip is not available")
-        return False
-
-def install_package(package):
-    """Install a single package"""
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-        return True
-    except subprocess.CalledProcessError:
-        return False
+    if version >= (3, 13):
+        print("✅ Python 3.13+ detected - will use compatible requirements")
+        return "python313"
+    elif version >= (3, 8):
+        print("✅ Python version compatible - will use full requirements")
+        return "standard"
+    
+    return False
 
 def install_requirements(requirements_file):
-    """Install requirements from file"""
-    print(f"\n📦 Installing dependencies from {requirements_file}...")
+    """Install requirements from specified file"""
+    print(f"📦 Installing dependencies from {requirements_file}...")
     
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", requirements_file])
-        print(f"✅ Successfully installed dependencies from {requirements_file}")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install dependencies from {requirements_file}")
-        print(f"   Error: {e}")
+        # Check if pip is available
+        subprocess.run([sys.executable, "-m", "pip", "--version"], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("❌ Error: pip not found. Please install pip first.")
+        return False
+    
+    try:
+        # Install requirements
+        result = subprocess.run([
+            sys.executable, "-m", "pip", "install", "-r", requirements_file
+        ], capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print("✅ Dependencies installed successfully!")
+            return True
+        else:
+            print("❌ Error installing dependencies:")
+            print(result.stderr)
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error: {e}")
         return False
 
-def create_directories():
-    """Create necessary directories"""
-    directories = [
-        "logs",
-        "data/input",
-        "data/output", 
-        "data/backup",
-        "models",
-        "config"
-    ]
+def install_streamlit():
+    """Install Streamlit if not already installed"""
+    print("🔍 Checking Streamlit installation...")
     
-    for directory in directories:
-        Path(directory).mkdir(parents=True, exist_ok=True)
-    
-    print("✅ Created necessary directories")
+    try:
+        import streamlit
+        print(f"✅ Streamlit {streamlit.__version__} already installed")
+        return True
+    except ImportError:
+        print("📦 Installing Streamlit...")
+        try:
+            subprocess.run([
+                sys.executable, "-m", "pip", "install", "streamlit>=1.28.0"
+            ], check=True)
+            print("✅ Streamlit installed successfully!")
+            return True
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Error installing Streamlit: {e}")
+            return False
 
 def main():
     """Main installation function"""
-    print("🔒 Digital Twin Cybersecurity Simulation - Installation")
-    print("=" * 60)
+    print("🔒 Digital Twin Cybersecurity Simulation")
+    print("=" * 50)
+    print("🚀 Starting installation...")
+    print()
     
-    # Check prerequisites
-    if not check_python_version():
+    # Check Python compatibility
+    compatibility = check_python_compatibility()
+    if not compatibility:
         sys.exit(1)
     
-    if not check_pip():
-        print("Please install pip first")
-        sys.exit(1)
+    print()
     
-    # Update pip
-    print("\n🔄 Updating pip...")
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
-        print("✅ pip updated successfully")
-    except subprocess.CalledProcessError:
-        print("⚠️  Failed to update pip, continuing anyway...")
-    
-    # Try full installation first
-    print("\n🚀 Attempting full installation...")
-    if install_requirements("requirements.txt"):
-        print("\n🎉 Full installation completed successfully!")
+    # Determine requirements file
+    if compatibility == "python313":
+        requirements_file = "requirements-python313.txt"
+        print("📋 Using Python 3.13+ compatible requirements")
+        print("   Note: TensorFlow/PyTorch replaced with compatible alternatives")
     else:
-        print("\n⚠️  Full installation failed, trying minimal installation...")
-        
-        if install_requirements("requirements-minimal.txt"):
-            print("\n✅ Minimal installation completed successfully!")
-            print("   Note: Some advanced ML features may not be available")
-        else:
-            print("\n❌ Both installations failed")
-            print("\n🔧 Manual installation steps:")
-            print("1. Try installing core packages individually:")
-            print("   pip install numpy pandas scikit-learn flask")
-            print("2. Check your Python version and pip installation")
-            print("3. Consider using a virtual environment")
-            sys.exit(1)
+        requirements_file = "requirements.txt"
+        print("📋 Using standard requirements (includes TensorFlow/PyTorch)")
     
-    # Create directories
-    print("\n📁 Setting up directories...")
-    create_directories()
+    print()
     
-    # Test basic functionality
-    print("\n🧪 Testing basic functionality...")
-    try:
-        import numpy
-        import pandas
-        import flask
-        import sklearn
-        print("✅ Core packages imported successfully")
-    except ImportError as e:
-        print(f"⚠️  Warning: Some packages may not be properly installed: {e}")
+    # Check if requirements file exists
+    if not Path(requirements_file).exists():
+        print(f"❌ Error: {requirements_file} not found")
+        print("   Please ensure you're running this script from the project directory")
+        sys.exit(1)
     
-    print("\n" + "=" * 60)
-    print("🎉 Installation completed!")
-    print("\n📋 Next steps:")
-    print("1. Run the demo: python demo.py")
-    print("2. Start the simulation: python src/main.py")
-    print("3. Access the dashboard: http://localhost:5000")
-    print("\n📚 For more information, see the README.md file")
+    # Install requirements
+    if not install_requirements(requirements_file):
+        print("\n💡 Troubleshooting tips:")
+        print("   1. Try updating pip: python -m pip install --upgrade pip")
+        print("   2. Use virtual environment: python -m venv venv")
+        print("   3. Check your internet connection")
+        sys.exit(1)
+    
+    print()
+    
+    # Install Streamlit
+    if not install_streamlit():
+        print("⚠️  Warning: Streamlit installation failed")
+        print("   You can try installing it manually: pip install streamlit")
+    
+    print()
+    print("🎉 Installation completed successfully!")
+    print()
+    print("🚀 To run the simulation:")
+    print("   streamlit run app.py")
+    print()
+    print("📚 For more information, see README.md")
+    print("=" * 50)
 
 if __name__ == "__main__":
     main() 

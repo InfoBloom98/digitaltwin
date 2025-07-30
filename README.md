@@ -66,9 +66,13 @@ This simulation will help you understand:
 ## 🚀 **Quick Start Guide**
 
 ### **Prerequisites**
-- **Python 3.8 or higher** (3.9+ recommended)
+- **Python 3.8 or higher** (3.9+ recommended, 3.13 supported)
 - **pip package manager** (usually comes with Python)
 - **Web browser** (Chrome, Firefox, Safari, or Edge)
+
+### **Python Version Compatibility**
+- **Python 3.8-3.12**: Use `requirements.txt` (includes TensorFlow/PyTorch)
+- **Python 3.13+**: Use `requirements-python313.txt` (TensorFlow/PyTorch alternatives)
 
 ### **What You'll Need to Know:**
 - Basic understanding of cybersecurity concepts
@@ -79,8 +83,11 @@ This simulation will help you understand:
 
 #### **Option 1: Full Installation (Recommended for Students)**
 ```bash
-# Install all dependencies including ML libraries
+# For Python 3.8-3.12 (includes TensorFlow/PyTorch)
 pip install -r requirements.txt
+
+# For Python 3.13+ (TensorFlow/PyTorch alternatives)
+pip install -r requirements-python313.txt
 ```
 *This gives you access to all features and machine learning capabilities.*
 
@@ -130,7 +137,11 @@ If specific packages fail to install:
 #### **ML Library Issues**
 If TensorFlow/PyTorch installation fails:
 1. Use the minimal requirements file
-2. Install CPU-only versions:
+2. For Python 3.13+, use the Python 3.13 requirements:
+   ```bash
+   pip install -r requirements-python313.txt
+   ```
+3. Install CPU-only versions (for Python 3.8-3.12):
    ```bash
    pip install tensorflow-cpu
    # or
@@ -143,72 +154,77 @@ If the dashboard doesn't load:
 2. Check if port 8501 is available
 3. Try a different port: `streamlit run app.py --server.port 8502`
 
-### Running the System
+### **Running the Simulation**
 
-1. **Run the Demo:**
-   ```bash
-   python demo.py
-   ```
+#### **Step 1: Start the Interactive Dashboard**
+Choose one of these methods:
 
-2. **Run the Streamlit App:**
-   
-   **Option A: Direct Streamlit command**
-   ```bash
-   streamlit run app.py
-   ```
-   
-   **Option B: Using the launcher script**
-   ```bash
-   python run_app.py
-   ```
-   
-   **Option C: With custom configuration**
-   ```bash
-   streamlit run app.py --server.port 8501 --server.address localhost
-   ```
-   
-   **Option D: Windows users (double-click)**
-   ```bash
-   run_app.bat
-   ```
+**Option A: Direct Streamlit command (Recommended)**
+```bash
+streamlit run app.py
+```
 
-3. **Access the Dashboard:**
-   - The Streamlit app will automatically open in your default browser
-   - If it doesn't open automatically, navigate to: **http://localhost:8501**
-   - The app runs on port 8501 by default
+**Option B: Using the launcher script**
+```bash
+python run_app.py
+```
 
-4. **Run Tests:**
-   ```bash
-   python -m pytest tests/
-   ```
+**Option C: Windows users (double-click)**
+```bash
+run_app.bat
+```
 
-## 🔧 Features
+#### **Step 2: Access the Dashboard**
+- The app will automatically open in your default browser
+- If it doesn't open automatically, navigate to: **http://localhost:8501**
+- The dashboard runs on port 8501 by default
 
-### Vulnerability Detection
-- Network traffic analysis
-- Anomaly detection in system behavior
-- Configuration vulnerability scanning
-- Zero-day threat identification
+#### **Step 3: Explore the Simulation**
+Once the dashboard loads, you'll see:
+- **📊 Overview**: System summary and key metrics
+- **🔍 Vulnerabilities**: Detailed vulnerability analysis
+- **🎯 Attack Scenarios**: Predicted cyber threats
+- **🚨 Anomalies**: Unusual system behavior detection
+- **💡 Recommendations**: Security improvement suggestions
 
-### Attack Prediction
-- ML-based attack scenario modeling
-- Threat intelligence integration
-- Risk assessment and scoring
-- Attack path prediction
+#### **Step 4: Run the Command-Line Demo (Optional)**
+```bash
+python demo.py
+```
+*This shows the same simulation logic in a text-based format.*
 
-### Security Evaluation
-- Penetration testing simulation
-- Security control effectiveness analysis
-- Compliance assessment
-- Incident response evaluation
+#### **Step 5: Run Tests (For Developers)**
+```bash
+python -m pytest tests/
+```
 
-### Resilience Enhancement
-- Automated security recommendations
-- Adaptive security policies
-- Real-time threat response
-- Continuous monitoring and learning
+## 🔧 **Simulation Features**
 
-## 📊 Streamlit Dashboard Features
+### **🔍 Vulnerability Detection**
+- **Network Traffic Analysis**: Monitor and analyze network communications for suspicious patterns
+- **Anomaly Detection**: Identify unusual behavior in system operations
+- **Configuration Scanning**: Check for security misconfigurations in digital twin systems
+- **Zero-day Threat Identification**: Detect previously unknown security threats
+
+### **🎯 Attack Prediction**
+- **ML-based Attack Modeling**: Use machine learning to predict potential cyber threats
+- **Threat Intelligence Integration**: Incorporate real-world threat data into predictions
+- **Risk Assessment**: Calculate and score the likelihood of different attack scenarios
+- **Attack Path Prediction**: Map out potential routes attackers might take
+
+### **📊 Security Evaluation**
+- **Penetration Testing Simulation**: Simulate real-world attack scenarios
+- **Security Control Analysis**: Evaluate how well current security measures work
+- **Compliance Assessment**: Check if systems meet healthcare security standards
+- **Incident Response Evaluation**: Test how well the system responds to attacks
+
+### **🛡️ Resilience Enhancement**
+- **Automated Recommendations**: Generate specific security improvement suggestions
+- **Adaptive Security Policies**: Create flexible security rules that adapt to threats
+- **Real-time Threat Response**: Implement immediate responses to detected threats
+- **Continuous Learning**: Improve security measures based on new threat data
+
+## 📊 **Streamlit Dashboard Features**
 
 ### 🎛️ **Interactive Dashboard**
 - Multi-page navigation with real-time updates
@@ -239,12 +255,108 @@ If the dashboard doesn't load:
 - Export capabilities for data analysis
 - Debug information and logging controls
 
-## 🔒 Security Considerations
+## 🎓 **What You'll Learn**
+
+### **🏥 Healthcare Digital Twin Concepts**
+- Understanding how digital twins work in healthcare
+- Identifying critical systems that need protection
+- Learning about patient data privacy and HIPAA compliance
+- Exploring medical device security challenges
+
+### **🔒 Cybersecurity Fundamentals**
+- **Vulnerability Assessment**: How to identify security weaknesses
+- **Threat Modeling**: Understanding different types of cyber attacks
+- **Risk Management**: Evaluating and prioritizing security risks
+- **Incident Response**: Planning for and responding to security breaches
+
+### **🤖 Machine Learning in Cybersecurity**
+- How AI/ML is used to detect threats
+- Understanding anomaly detection algorithms
+- Learning about predictive security analytics
+- Exploring automated security recommendations
+
+### **📊 Data Analysis & Visualization**
+- Interpreting security metrics and KPIs
+- Understanding security dashboards and reports
+- Learning to communicate security findings
+- Using data to make security decisions
+
+## 🎯 **How to Use This Simulation**
+
+### **Getting Started (First Time Users)**
+1. **Install the simulation** using the instructions above
+2. **Launch the dashboard** with `streamlit run app.py`
+3. **Explore the Overview tab** to understand the system
+4. **Adjust simulation parameters** using the sidebar controls
+5. **Refresh the simulation** to see different scenarios
+
+### **Learning Path (Recommended Order)**
+1. **📊 Overview**: Start here to understand the big picture
+2. **🔍 Vulnerabilities**: Learn about different types of security weaknesses
+3. **🎯 Attack Scenarios**: Understand how threats are predicted
+4. **🚨 Anomalies**: See how unusual behavior is detected
+5. **💡 Recommendations**: Learn how to improve security
+
+### **Hands-On Activities**
+- **Experiment with Parameters**: Change the number of digital twins and see how it affects security
+- **Analyze Different Scenarios**: Refresh the simulation to see various threat landscapes
+- **Study the Visualizations**: Understand what the charts and graphs tell you
+- **Practice Filtering**: Use the filters to focus on specific types of vulnerabilities or threats
+
+### **Advanced Exploration**
+- **Compare Scenarios**: Run multiple simulations and compare results
+- **Study the Code**: Look at `demo.py` to understand the underlying logic
+- **Modify Parameters**: Experiment with different security thresholds
+- **Export Data**: Use the export features to analyze data in other tools
+
+## 🔒 **Security Considerations**
 
 - All sensitive data is encrypted
 - Secure communication protocols
 - Access control and authentication
 - Audit logging and monitoring
+
+## 🌍 **Real-World Applications**
+
+### **🏥 Healthcare Industry**
+- **Hospital Security**: Protecting patient data and medical devices
+- **Pharmaceutical Manufacturing**: Securing drug production processes
+- **Medical Device Security**: Ensuring safe operation of life-saving equipment
+- **Telemedicine**: Securing remote healthcare delivery systems
+
+### **🏭 Other Industries Using Digital Twins**
+- **Manufacturing**: Securing industrial control systems
+- **Energy**: Protecting power grid and utility systems
+- **Transportation**: Securing autonomous vehicles and traffic systems
+- **Smart Cities**: Protecting urban infrastructure and services
+
+### **💼 Career Opportunities**
+This simulation prepares you for roles such as:
+- **Cybersecurity Analyst**: Protecting systems from threats
+- **Security Engineer**: Building secure digital twin systems
+- **Healthcare IT Specialist**: Securing medical technology
+- **Risk Manager**: Assessing and managing security risks
+- **Compliance Officer**: Ensuring regulatory compliance
+
+## 📚 **Additional Resources**
+
+### **Recommended Reading**
+- **Digital Twin Security**: Understanding the unique challenges of securing virtual representations
+- **Healthcare Cybersecurity**: HIPAA compliance and medical device security
+- **Machine Learning in Security**: How AI is transforming cybersecurity
+- **Incident Response**: Best practices for handling security breaches
+
+### **Online Courses & Certifications**
+- CompTIA Security+ (Cybersecurity fundamentals)
+- CISSP (Advanced security concepts)
+- Healthcare Information Security (HIPAA and medical security)
+- Digital Twin Technology (Understanding the technology)
+
+### **Professional Organizations**
+- **ISC²**: International Information System Security Certification Consortium
+- **SANS Institute**: Cybersecurity training and certification
+- **HIMSS**: Healthcare Information and Management Systems Society
+- **IEEE**: Institute of Electrical and Electronics Engineers
 
 ## 📈 Performance Metrics
 
@@ -253,10 +365,43 @@ If the dashboard doesn't load:
 - Response time: <100ms
 - System availability: 99.9%
 
-## 🤝 Contributing
+## 🤝 **Getting Help & Contributing**
 
+### **Need Help?**
+- **Check the troubleshooting section** above for common issues
+- **Review the documentation** in the `docs/` folder
+- **Run the demo script** (`python demo.py`) to understand the basics
+- **Experiment with different parameters** to learn how the system works
+
+### **For Students**
+- Start with the **Overview tab** to understand the big picture
+- Use the **sidebar controls** to experiment with different scenarios
+- **Don't worry about understanding everything at once** - focus on one concept at a time
+- **Ask questions** in your class or study group
+
+### **For Educators**
+- Use this simulation as a **hands-on lab** for cybersecurity courses
+- **Assign specific tasks** like analyzing vulnerability patterns or comparing attack scenarios
+- **Encourage students** to experiment with different parameters
+- **Use the command-line demo** (`python demo.py`) for programming exercises
+
+### **Contributing**
 Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
 
-## 📄 License
+## 📄 **License**
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 🎉 **Ready to Start?**
+
+You're now ready to explore the fascinating world of Digital Twin Cybersecurity! 
+
+**Quick Start:**
+1. Install dependencies: `pip install -r requirements.txt`
+2. Launch the app: `streamlit run app.py`
+3. Open your browser to: http://localhost:8501
+4. Start exploring the dashboard!
+
+**Happy Learning! 🚀** 
